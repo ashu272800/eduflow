@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: eduflow-db
+    environment:
+      POSTGRES_DB: eduflow
+      POSTGRES_USER: eduflow
+      POSTGRES_PASSWORD: eduflow_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eduflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: eduflow-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/eduflow
+      DB_USERNAME: eduflow
+      DB_PASSWORD: eduflow_secret
+      JWT_SECRET: change_this_in_production_very_long_secret_key_2024
+      JWT_EXPIRATION: 86400000
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
