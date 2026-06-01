@@ -5,3 +5,4 @@ dockerfilePath = "Dockerfile"
 [deploy]
 startCommand = "java -jar app.jar"
 restartPolicyType = "ON_FAILURE"
+
