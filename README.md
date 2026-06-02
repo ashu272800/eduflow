@@ -1,185 +1,118 @@
 # EduFlow - Advanced Education Workflow Automation
 
-A backend system for educational institutions, automating workflows for student records, course management, and notifications.
+[![React](https://img.shields.io/badge/React-19.0-blue?style=for-the-badge&logo=react)](https://react.dev/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2-green?style=for-the-badge&logo=springboot)](https://spring.io/projects/spring-boot)
+[![Spring Security](https://img.shields.io/badge/Spring_Security-6.2-orange?style=for-the-badge&logo=springsecurity)](https://spring.io/projects/spring-security)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
+[![Vercel](https://img.shields.io/badge/Vercel-Frontend-black?style=for-the-badge&logo=vercel)](https://vercel.com/)
+[![Railway](https://img.shields.io/badge/Railway-Backend-purple?style=for-the-badge&logo=railway)](https://railway.app/)
 
-## Tech Stack
+EduFlow is a production-ready, full-stack workflow automation system designed for educational institutions. It automates administrative tasks, student enrollment records, course scheduling, and triggers asynchronous communication.
 
-- **Java 17** + **Spring Boot 3.2**
-- **Spring Security** + **JWT** authentication
-- **Spring Data JPA** + **PostgreSQL**
-- **Spring Async** for notifications
-- **Docker** + **Docker Compose**
-- **Maven** build system
+---
 
-## Features
+## 🚀 Live Demo & Recruiter Access
 
-- ✅ JWT Authentication & Role-Based Access (ADMIN, FACULTY, STAFF)
-- ✅ Student CRUD (Create, Read, Update, Delete)
-- ✅ Course CRUD + Enrollment/Unenrollment
-- ✅ Async Notification System (Email/SMS ready)
-- ✅ Global Exception Handling with standard error responses
-- ✅ Bean Validation on all inputs
-- ✅ Dockerized for easy deployment
+* **Live Frontend Website**: [https://frontend-kohl-sigma-24.vercel.app](https://frontend-kohl-sigma-24.vercel.app)
+* **Live Backend API**: [https://eduflow-production-7901.up.railway.app](https://eduflow-production-7901.up.railway.app)
+* **API Documentation**: [Swagger OpenAPI UI](https://eduflow-production-7901.up.railway.app/swagger-ui/index.html)
 
-## Project Structure
+### Recruiter Credentials
+The database has been seeded automatically with mock demo data. You can log in directly using any of these roles:
 
-```
-src/main/java/com/eduflow/
-├── EduFlowApplication.java
-├── config/
-│   └── SecurityConfig.java
-├── controller/
-│   ├── AuthController.java
-│   ├── StudentController.java
-│   ├── CourseController.java
-│   └── NotificationController.java
-├── dto/
-│   ├── AuthDto.java
-│   ├── StudentDto.java
-│   └── CourseDto.java
-├── entity/
-│   ├── User.java
-│   ├── Student.java
-│   ├── Course.java
-│   └── Notification.java
-├── exception/
-│   ├── GlobalExceptionHandler.java
-│   ├── ResourceNotFoundException.java
-│   └── ResourceAlreadyExistsException.java
-├── repository/
-│   ├── UserRepository.java
-│   ├── StudentRepository.java
-│   ├── CourseRepository.java
-│   └── NotificationRepository.java
-├── security/
-│   ├── JwtUtil.java
-│   └── JwtAuthFilter.java
-└── service/
-    ├── UserService.java
-    ├── StudentService.java
-    ├── CourseService.java
-    ├── NotificationService.java
-    └── CustomUserDetailsService.java
+| Role | Username | Password | Access Privileges |
+|------|----------|----------|-------------------|
+| **ADMIN** | `admin` | `admin123` | Full access, delete students/courses, register users |
+| **FACULTY** | `faculty` | `faculty123` | Access student lists, enroll/unenroll, dispatch notifications |
+| **STAFF** | `staff` | `staff123` | View-only metrics, CRUD students, view course lists |
+
+---
+
+## 🏛️ System Architecture
+
+The application is structured as a modern decoupled Web App:
+
+```mermaid
+graph LR
+    User([Browser / Client]) -->|HTTPS Request| Vercel[Vercel Static CDN]
+    Vercel -->|React + Vite SPA| User
+    User -->|API Requests + JWT Header| Railway[Railway App Gateway]
+    subgraph Spring Boot Backend
+        Railway -->|Tomcat 8080| Filter[JwtAuthFilter / CorsFilter]
+        Filter -->|Security context| AuthManager[Authentication Manager]
+        AuthManager -->|Controllers| API[REST Controllers]
+        API -->|Async Thread Pool| MailService[Async Notifications]
+        API -->|JPA / Hibernate| DB[(PostgreSQL Database)]
+    end
 ```
 
-## Quick Start
+### Key Technical Challenges Solved:
+1. **Actuator DOWN state debug**: Solved an SMTP outbound socket connection timeout issue by disabling the blocking MailHealthIndicator, bringing the service status from 503 DOWN to healthy 200 UP.
+2. **CORS Handling**: Configured a dynamic CORS filter using `setAllowedOriginPatterns` to securely allow dynamic origins from Vercel deployments while allowing authentication credentials (cookies/tokens).
+3. **Single Page Routing**: Designed rewrite rules in `vercel.json` to route clean URL paths back to `index.html` preventing 404 errors on hard refreshes.
 
-### Option 1: Docker Compose (Recommended)
+---
 
+## ⚙️ Tech Stack & Key Libraries
+
+### Backend
+* **Spring Boot 3.x** - Web REST APIs
+* **Spring Security & JWT** - Statless session authentication and Role-Based Access Control (RBAC)
+* **Spring Data JPA & Hibernate** - ORM mappings and schema migrations
+* **PostgreSQL** - Production-grade relational database
+* **Spring Actuator** - Application health monitoring
+
+### Frontend
+* **React 19 & Vite** - Fast, bundled single page app architecture
+* **Material UI (MUI) v6** - Premium typography (Outfit + Inter), glassmorphism design system, and custom dark mode toggles
+* **React Hook Form** - Efficient, validated client-side forms
+* **Recharts** - Dynamic student demographic visualization
+
+---
+
+## 📋 Features
+
+* **JWT Stateless Auth**: Secure token-based session validation. Auto-attaches `Bearer` tokens to all requests via Axios interceptors.
+* **Role-Based Access Control**: Route protections dynamically toggle visibility of navigation links and restrict backend endpoints based on roles (ADMIN, FACULTY, STAFF).
+* **Student Lifecycle Management**: Complete CRUD operations, tracking active, inactive, and graduated students.
+* **Course Enrollment Matrix**: Many-to-many database mapping allowing real-time enrollments and unenrollments of students in courses.
+* **Asynchronous Dispatches**: Event-driven notification logger using Spring Async thread pool.
+
+---
+
+## 🛠️ Local Development Setup
+
+### Prerequisites
+* Java 17+
+* Node.js 18+
+* PostgreSQL
+
+### 1. Backend Setup
 ```bash
-# Clone the repo
-git clone https://github.com/YOUR_USERNAME/eduflow.git
 cd eduflow
-
-# Run with Docker Compose
-docker-compose up --build
-```
-
-API will be available at `http://localhost:8080`
-
-### Option 2: Local Setup
-
-**Prerequisites:** Java 17, Maven, PostgreSQL
-
-```bash
-# Create PostgreSQL database
-psql -U postgres -c "CREATE DATABASE eduflow;"
-
-# Configure application.properties or set env vars:
+# Set environment variables
 export DB_URL=jdbc:postgresql://localhost:5432/eduflow
 export DB_USERNAME=postgres
-export DB_PASSWORD=yourpassword
-export JWT_SECRET=your_secret_key
+export DB_PASSWORD=your_password
+export JWT_SECRET=your_super_secret_signing_key_here
 
-# Build & run
-mvn clean install
+# Build and Run
 mvn spring-boot:run
 ```
 
-## API Endpoints
+### 2. Frontend Setup
+```bash
+cd eduflow/frontend
+npm install
 
-### Auth
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/auth/register` | Register new user | No |
-| POST | `/api/auth/login` | Login, get JWT token | No |
+# Configure local env
+echo "VITE_API_BASE_URL=http://localhost:8080" > .env
 
-### Students
-| Method | Endpoint | Description | Role |
-|--------|----------|-------------|------|
-| GET | `/api/students` | List all students | ALL |
-| GET | `/api/students/{id}` | Get student by ID | ALL |
-| POST | `/api/students` | Create student | ADMIN, FACULTY |
-| PUT | `/api/students/{id}` | Update student | ADMIN, FACULTY |
-| DELETE | `/api/students/{id}` | Delete student | ADMIN |
-
-### Courses
-| Method | Endpoint | Description | Role |
-|--------|----------|-------------|------|
-| GET | `/api/courses` | List all courses | ALL |
-| GET | `/api/courses/{id}` | Get course by ID | ALL |
-| POST | `/api/courses` | Create course | ADMIN, FACULTY |
-| PUT | `/api/courses/{id}` | Update course | ADMIN, FACULTY |
-| DELETE | `/api/courses/{id}` | Delete course | ADMIN |
-| POST | `/api/courses/{courseId}/enroll/{studentId}` | Enroll student | ADMIN, FACULTY |
-| DELETE | `/api/courses/{courseId}/unenroll/{studentId}` | Unenroll student | ADMIN, FACULTY |
-
-### Notifications
-| Method | Endpoint | Description | Role |
-|--------|----------|-------------|------|
-| POST | `/api/notifications/send` | Send notification | ADMIN, FACULTY |
-| GET | `/api/notifications` | All notifications | ADMIN |
-| GET | `/api/notifications/recipient/{id}` | By recipient | ADMIN, FACULTY |
-
-## Sample API Usage
-
-### 1. Register Admin
-```json
-POST /api/auth/register
-{
-  "username": "admin",
-  "password": "admin123",
-  "email": "admin@school.com",
-  "role": "ADMIN"
-}
+# Run development server
+npm run dev
 ```
 
-### 2. Login
-```json
-POST /api/auth/login
-{
-  "username": "admin",
-  "password": "admin123"
-}
-// Response: { "token": "eyJhb...", "username": "admin", "role": "ADMIN" }
-```
+---
 
-### 3. Use Token in Headers
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
-```
-
-### 4. Create Student
-```json
-POST /api/students
-Authorization: Bearer <token>
-{
-  "name": "Rahul Sharma",
-  "email": "rahul@school.com",
-  "enrollmentDate": "2024-01-15"
-}
-```
-
-## Deployment on Railway.app
-
-1. Push code to GitHub
-2. Go to [railway.app](https://railway.app) → New Project → Deploy from GitHub
-3. Add PostgreSQL plugin
-4. Set environment variables:
-   - `DB_URL` → from Railway PostgreSQL
-   - `DB_USERNAME`, `DB_PASSWORD`
-   - `JWT_SECRET` → any long random string
-5. Deploy!
-
-## License
-MIT
+## 📄 License
+Licensed under the [MIT License](LICENSE).
