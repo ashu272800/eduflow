@@ -1,6 +1,6 @@
 import { createTheme } from '@mui/material/styles';
 
-const getThemeOptions = (mode) => ({
+const getThemeOptions = (mode) => createTheme({
   palette: {
     mode,
     primary: {
